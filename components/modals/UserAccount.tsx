@@ -22,20 +22,23 @@ function AuthenticatedView() {
             <div className="inline-flex flex-col justify-center items-center btn-group-vertical w-full space-y-4">
                 <div className="avatar">
                     <div className="w-24 mask mask-hexagon">
-                    <Avatar
-  size={40}
-  name="Maria Mitchell"
-  variant="marble"
-  colors={["#92A1C6", "#146A7C", "#F0AB3D", "#C271B4", "#C20D90"]}
-/>
-                        {/* <img src={session?.user?.image || ""} />
-                        <Image
-        src="/me.png"
-        alt="Picture of the author"
-        width={500}
-        height={500}
-        priority
-      /> */}
+                        {
+                            session?.user?.image ? (
+                                <Image
+                                    src={session?.user?.image || ""}
+                                    alt="Picture of the discord user"
+                                    fill
+                                    priority
+                                />
+                            ) : (
+                                <Avatar
+                                    size={100}
+                                    name={session?.user?.name || ""}
+                                    variant="sunset"
+                                    colors={["#92A1C6", "#146A7C", "#F0AB3D", "#C271B4", "#C20D90"]}
+                                />
+                            )
+                        }
                     </div>
                 </div>
                 <p>{session?.user?.name}</p>
