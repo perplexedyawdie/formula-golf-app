@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { LineWave } from 'react-loader-spinner'
 import ModalGroup from './ModalGroup'
-import GameSessionManager from './modals/CreateGame'
-import HelpScreen from './modals/HelpScreen'
-import HighScoreScreen from './modals/HighScoreScreen'
-import JoinGame from './modals/JoinGame'
-
+import { MdOutlineAccountCircle, MdHelpOutline } from 'react-icons/md'
+import { GiPodium } from 'react-icons/gi'
 
 function LoadingSpiner() {
 
@@ -43,12 +40,21 @@ function MenuButtons() {
             {
                 isLoading ?
                     <LoadingSpiner /> : (
-                        <div className="btn-group space-y-4 max-w-md btn-group-vertical">
+                        <div className="inline-flex space-y-4 max-w-md flex-col">
                             {/* <button className="btn btn-wide btn-active">Start</button> */}
                             <label htmlFor="creategame-modal" className="btn btn-wide">Create Game</label>
                             <label htmlFor="joingame-modal" className="btn btn-wide">Join Game</label>
-                            <label htmlFor="help-modal" className="btn btn-wide">Help</label>
-                            <label htmlFor="highscore-modal" className="btn btn-wide">High Score</label>
+                            <div className="inline-flex justify-between">
+                                <label htmlFor="useracc-modal" title="Account" className="btn btn-square">
+                                    <MdOutlineAccountCircle size={20} />
+                                </label>
+                                <label title="Help" htmlFor="help-modal" className="btn btn-square">
+                                    <MdHelpOutline size={20} />
+                                </label>
+                                <label title="Leaderboard" htmlFor="highscore-modal" className="btn btn-square">
+                                    <GiPodium size={20} />
+                                </label>
+                            </div>
                         </div>
                     )
             }

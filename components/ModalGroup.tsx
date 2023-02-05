@@ -2,6 +2,7 @@ import CreateGame from "./modals/CreateGame";
 import HelpScreen from "./modals/HelpScreen";
 import HighScoreScreen from "./modals/HighScoreScreen";
 import JoinGame from "./modals/JoinGame";
+import UserAccount from "./modals/UserAccount";
 
 function ModalGroup() {
     return (
@@ -10,6 +11,7 @@ function ModalGroup() {
             <HighScoreScreen />
             <CreateGame />
             <JoinGame />
+            <UserAccount />
         </>
     );
 }
