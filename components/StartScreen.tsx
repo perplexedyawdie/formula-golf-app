@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { LineWave } from 'react-loader-spinner'
+import ModalGroup from './ModalGroup'
+import GameSessionManager from './modals/CreateGame'
 import HelpScreen from './modals/HelpScreen'
 import HighScoreScreen from './modals/HighScoreScreen'
+import JoinGame from './modals/JoinGame'
 
 
 function LoadingSpiner() {
@@ -36,13 +39,14 @@ function MenuButtons() {
 
     return (
         <>
-            <HelpScreen />
-            <HighScoreScreen />
+            <ModalGroup />
             {
                 isLoading ?
                     <LoadingSpiner /> : (
                         <div className="btn-group space-y-4 max-w-md btn-group-vertical">
-                            <button className="btn btn-wide btn-active">Start</button>
+                            {/* <button className="btn btn-wide btn-active">Start</button> */}
+                            <label htmlFor="creategame-modal" className="btn btn-wide">Create Game</label>
+                            <label htmlFor="joingame-modal" className="btn btn-wide">Join Game</label>
                             <label htmlFor="help-modal" className="btn btn-wide">Help</label>
                             <label htmlFor="highscore-modal" className="btn btn-wide">High Score</label>
                         </div>
