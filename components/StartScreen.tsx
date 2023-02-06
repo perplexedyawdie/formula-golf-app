@@ -1,9 +1,15 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { LineWave } from 'react-loader-spinner'
 import ModalGroup from './ModalGroup'
 import { MdOutlineAccountCircle, MdHelpOutline } from 'react-icons/md'
 import { GiPodium } from 'react-icons/gi'
+// import dynamic from 'next/dynamic'
+import * as Colyseus from "colyseus.js";
+import ColyseusContext from "@/context/ColyseusContext";
 
+// const ModalGroup = dynamic(() => import('./ModalGroup'), {
+//     ssr: false
+//   })
 function LoadingSpiner() {
 
     return (
@@ -25,6 +31,7 @@ function LoadingSpiner() {
 function MenuButtons() {
     // TODO only authenticated users can see these
     const [isLoading, setIsLoading] = useState<boolean>(true)
+    const colyClient = useContext(ColyseusContext)
 
     useEffect(() => {
         const loadingTimer = setTimeout(() => {
@@ -33,6 +40,21 @@ function MenuButtons() {
         return () => clearTimeout(loadingTimer);
     }, [])
 
+    function handleCreateGame() {
+        if (!colyClient?.room && colyClient?.client) {
+            colyClient.client.create("fg")
+                .then((room) => {
+                    room.onStateChange((newState) => {
+                        console.log("New state:", newState);
+                    });
+
+                    room.onLeave((code) => {
+                        console.log("You've been disconnected.");
+                    });
+                    colyClient.setRoom(room)
+                })
+        }
+    }
 
     return (
         <>
@@ -42,7 +64,7 @@ function MenuButtons() {
                     <LoadingSpiner /> : (
                         <div className="inline-flex space-y-4 max-w-md flex-col">
                             {/* <button className="btn btn-wide btn-active">Start</button> */}
-                            <label htmlFor="creategame-modal" className="btn btn-wide">Create Game</label>
+                            <label onClick={() => handleCreateGame()} htmlFor="creategame-modal" className="btn btn-wide">Create Game</label>
                             <label htmlFor="joingame-modal" className="btn btn-wide">Join Game</label>
                             <div className="inline-flex justify-between">
                                 <label htmlFor="useracc-modal" title="Account" className="btn btn-square">
@@ -64,6 +86,14 @@ function MenuButtons() {
 }
 
 function StartScreen() {
+    const colyClient = useContext(ColyseusContext)
+    useEffect(() => {
+        if (!colyClient?.client && window != undefined) {
+            colyClient?.setClient((new Colyseus.Client('ws://localhost:2567')));
+        }
+    }, [])
+
+
     return (
         <div className="hero min-h-screen xl:max-w-5xl xl:mx-auto" style={{ backgroundImage: `url("/title-image.png")` }}>
             <div className="hero-overlay bg-opacity-60"></div>

@@ -2,11 +2,16 @@ import '@/styles/globals.css'
 import Head from 'next/head'
 import type { AppProps } from 'next/app'
 import { SessionProvider } from "next-auth/react"
+import { useState } from 'react'
+import * as Colyseus from "colyseus.js";
+import ColyseusContext from '@/context/ColyseusContext'
 
 export default function App({
   Component,
   pageProps: { session, ...pageProps }
 }: AppProps) {
+  const [client, setClient] = useState<Colyseus.Client | null>(null)
+  const [room, setRoom] = useState<Colyseus.Room | null>(null)
   return (
     <SessionProvider session={session}>
       <Head>
@@ -15,7 +20,9 @@ export default function App({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Component {...pageProps} />
+      <ColyseusContext.Provider value={{ client, setClient, room, setRoom }}>
+        <Component {...pageProps} />
+      </ColyseusContext.Provider>
     </SessionProvider>
   )
 }

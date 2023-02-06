@@ -4,7 +4,10 @@ import HighScoreScreen from "./modals/HighScoreScreen";
 import JoinGame from "./modals/JoinGame";
 import UserAccount from "./modals/UserAccount";
 
+
 function ModalGroup() {
+    
+
     return (
         <>
             <HelpScreen />
