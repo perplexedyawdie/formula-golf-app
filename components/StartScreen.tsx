@@ -75,7 +75,10 @@ function MenuButtons() {
                     <LoadingSpiner /> : (
                         <div className="inline-flex space-y-4 max-w-md flex-col">
                             {/* <button className="btn btn-wide btn-active">Start</button> */}
-                            <label onClick={() => handleCreateGame()} htmlFor="creategame-modal" className="btn btn-wide">Create Game</label>
+                            <label onClick={() => handleCreateGame()} htmlFor="creategame-modal" className="btn btn-wide gap-2">
+                                Create Game
+                                {/* <div className="badge animate-pulse badge-info badge-sm">+1</div> */}
+                            </label>
                             {
                                 !colyClient?.room ?
                                     <label htmlFor="joingame-modal" className="btn btn-wide">Join Game</label> : 
