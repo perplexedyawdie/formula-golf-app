@@ -14,6 +14,7 @@ function JoinGame() {
 
                     room.onLeave((code) => {
                         console.log("You've been disconnected.");
+                        colyClient.setRoom(null)
                     });
                     colyClient.setRoom(room)
                 })

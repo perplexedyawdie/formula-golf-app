@@ -12,6 +12,7 @@ export default function App({
 }: AppProps) {
   const [client, setClient] = useState<Colyseus.Client | null>(null)
   const [room, setRoom] = useState<Colyseus.Room | null>(null)
+  const [playerJoined, setPlayerJoined] = useState<boolean>(false)
   return (
     <SessionProvider session={session}>
       <Head>
@@ -20,7 +21,7 @@ export default function App({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <ColyseusContext.Provider value={{ client, setClient, room, setRoom }}>
+      <ColyseusContext.Provider value={{ client, setClient, room, setRoom, playerJoined, setPlayerJoined }}>
         <Component {...pageProps} />
       </ColyseusContext.Provider>
     </SessionProvider>

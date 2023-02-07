@@ -6,6 +6,7 @@ import { GiPodium } from 'react-icons/gi'
 // import dynamic from 'next/dynamic'
 import * as Colyseus from "colyseus.js";
 import ColyseusContext from "@/context/ColyseusContext";
+import { SocketMessages } from '@/utils/socket-messages.enum'
 
 // const ModalGroup = dynamic(() => import('./ModalGroup'), {
 //     ssr: false
@@ -47,12 +48,22 @@ function MenuButtons() {
                     room.onStateChange((newState) => {
                         console.log("New state:", newState);
                     });
-
+                    room.onMessage(SocketMessages.PLAYER_JOINED, (msg) => {
+                        console.log("player joined: ", msg)
+                        colyClient.setPlayerJoined(msg);
+                    })
                     room.onLeave((code) => {
                         console.log("You've been disconnected.");
+                        colyClient.setRoom(null)
                     });
                     colyClient.setRoom(room)
                 })
+        }
+    }
+
+    async function handleExitRoom() {
+        if(colyClient?.room) {
+            await colyClient.room.leave()
         }
     }
 
@@ -65,7 +76,11 @@ function MenuButtons() {
                         <div className="inline-flex space-y-4 max-w-md flex-col">
                             {/* <button className="btn btn-wide btn-active">Start</button> */}
                             <label onClick={() => handleCreateGame()} htmlFor="creategame-modal" className="btn btn-wide">Create Game</label>
-                            <label htmlFor="joingame-modal" className="btn btn-wide">Join Game</label>
+                            {
+                                !colyClient?.room ?
+                                    <label htmlFor="joingame-modal" className="btn btn-wide">Join Game</label> : 
+                                    <label onClick={() => handleExitRoom()} htmlFor="joingame-modal" className="btn btn-error btn-wide">Exit Room</label>
+                            }
                             <div className="inline-flex justify-between">
                                 <label htmlFor="useracc-modal" title="Account" className="btn btn-square">
                                     <MdOutlineAccountCircle size={20} />
