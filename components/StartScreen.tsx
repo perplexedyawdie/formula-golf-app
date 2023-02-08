@@ -7,6 +7,8 @@ import { GiPodium } from 'react-icons/gi'
 import * as Colyseus from "colyseus.js";
 import ColyseusContext from "@/context/ColyseusContext";
 import { SocketMessages } from '@/utils/socket-messages.enum'
+import { useSession } from 'next-auth/react'
+import generateUsername from '@/utils/get-a-username'
 
 // const ModalGroup = dynamic(() => import('./ModalGroup'), {
 //     ssr: false
@@ -33,7 +35,7 @@ function MenuButtons() {
     // TODO only authenticated users can see these
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const colyClient = useContext(ColyseusContext)
-
+    console.log(colyClient?.userName, " username")
     useEffect(() => {
         const loadingTimer = setTimeout(() => {
             setIsLoading(false)
@@ -105,12 +107,15 @@ function MenuButtons() {
 
 function StartScreen() {
     const colyClient = useContext(ColyseusContext)
+    const { data: session } = useSession();
     useEffect(() => {
         if (!colyClient?.client && window != undefined) {
             colyClient?.setClient((new Colyseus.Client('ws://localhost:2567')));
         }
-    }, [])
-
+        if(!colyClient?.userName) {
+            colyClient?.setUserName(session?.user?.userName || generateUsername())
+        }
+    }, [colyClient, session])
 
     return (
         <div className="hero min-h-screen xl:max-w-5xl xl:mx-auto" style={{ backgroundImage: `url("/title-image.png")` }}>

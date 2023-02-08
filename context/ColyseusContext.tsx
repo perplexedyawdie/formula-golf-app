@@ -8,8 +8,8 @@ interface ColyClient {
     setRoom: Dispatch<SetStateAction<Colyseus.Room | null>>
     playerJoined: boolean
     setPlayerJoined: Dispatch<SetStateAction<boolean>>
-    userName: string
-    setUserName: Dispatch<SetStateAction<string>>
+    userName: string | null
+    setUserName: Dispatch<SetStateAction<string | null>>
 }
 const ColyseusContext  = createContext<ColyClient | null>(null)
 

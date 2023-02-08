@@ -6,7 +6,7 @@ import { useState } from 'react'
 import * as Colyseus from "colyseus.js";
 import ColyseusContext from '@/context/ColyseusContext'
 import { uniqueNamesGenerator, adjectives, names } from 'unique-names-generator'
-
+import { useSession, signIn, signOut } from "next-auth/react"
 export default function App({
   Component,
   pageProps: { session, ...pageProps }
@@ -14,11 +14,7 @@ export default function App({
   const [client, setClient] = useState<Colyseus.Client | null>(null)
   const [room, setRoom] = useState<Colyseus.Room | null>(null)
   const [playerJoined, setPlayerJoined] = useState<boolean>(false)
-  const [userName, setUserName] = useState<string>(uniqueNamesGenerator({
-    dictionaries: [adjectives, names],
-    length: 2,
-    separator: "-"
-  }))
+  const [userName, setUserName] = useState<string | null>(null)
   return (
     <SessionProvider session={session}>
       <Head>
