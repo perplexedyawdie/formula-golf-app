@@ -13,6 +13,7 @@ function GameScene() {
     let points: Vector3[] = [];
     let points2: Vector3[] = [];
     let points3: Vector3[] = [];
+    let movementPoints: Vector3[] = []
     let normals: Vector3[];
     let theta: number;
     let startRotation: Nullable<Quaternion>;
@@ -66,6 +67,7 @@ function GameScene() {
         for (let i = 0; i < n + 1; i++) {
             points.push(new Vector3((r + (r / 5) * Math.sin(8 * i * Math.PI / n)) * Math.sin(2 * i * Math.PI / n), 0, (r + (r / 10) * Math.sin(6 * i * Math.PI / n)) * Math.cos(2 * i * Math.PI / n)));
         }
+        movementPoints = points.slice(0, 100)
 
         // Inner curve
         for (let i = 0; i < n + 1; i++) {
@@ -122,31 +124,9 @@ function GameScene() {
                 coordOffsetY = currCoordY - evt.clientY;
                 console.log("pointer down move ", currCoordY, " ", (coordOffsetY * -1))
             }
-        }
 
-        // .add((pointerInfo) => {
-        //     let currCoordY = 0
-        //     let coordOffsetY = 0;
-        //     let pointerDown = false;
-        //     switch (pointerInfo.type) {
-        //         case PointerEventTypes.POINTERMOVE:
-        //         case PointerEventTypes.POINTERDOWN:
-        //             pointerDown = true;
-        //             console.log("POINTER DOWN", pointerDown, " ", PointerEventTypes.POINTERMOVE);
-        //             break;
-        //         case PointerEventTypes.POINTERUP:
-        //             pointerDown = false;
-        //             console.log("POINTER UP", pointerDown);
-        //             break;
-        //         // case PointerEventTypes.POINTERMOVE:
-        //         //     if(pointerDown){
-        //         //         console.log("POINTER MOVE");
-        //         //     }
-        //         //     break;
-        //     }
-        // })
-
-    };
+        };
+    }
 
     /**
      * Will run on every frame render.  We are spinning the box on y-axis.
@@ -158,25 +138,29 @@ function GameScene() {
             points !== undefined &&
             normals !== undefined &&
             theta !== undefined &&
-            startRotation !== undefined
+            startRotation !== undefined &&
+            movementPoints != undefined
         ) {
             // console.log("mouse position: ",scene.pointerX, scene.pointerY)
             // const deltaTimeInMillis = scene.getEngine().getDeltaTime();
             // const rpm = 10;
             // box.rotation.y += (rpm / 60) * Math.PI * 2 * (deltaTimeInMillis / 1000);
-            rect.position.x = points[i].x;
-            rect.position.z = points[i].z;
+            if (i < (movementPoints.length - 1)) {
+                rect.position.x = movementPoints[i].x;
+                rect.position.z = movementPoints[i].z;
+                theta = Math.acos(Vector3.Dot(normals[i], normals[i + 1]));
+                let dir = Vector3.Cross(normals[i], normals[i + 1]).y;
+                dir = dir / Math.abs(dir);
+                rect.rotate(Axis.Y, dir * theta, Space.WORLD);
+
+                i = (i + 1) % (n - 1);
+            }
             // wheelFI.rotate(normals[i], Math.PI / 32, Space.WORLD);
             // wheelFO.rotate(normals[i], Math.PI / 32, Space.WORLD);
             // wheelRI.rotate(normals[i], Math.PI / 32, Space.WORLD);
             // wheelRO.rotate(normals[i], Math.PI / 32, Space.WORLD);
 
-            theta = Math.acos(Vector3.Dot(normals[i], normals[i + 1]));
-            var dir = Vector3.Cross(normals[i], normals[i + 1]).y;
-            var dir = dir / Math.abs(dir);
-            rect.rotate(Axis.Y, dir * theta, Space.WORLD);
-
-            i = (i + 1) % (n - 1);	//continuous looping  
+            //continuous looping  
 
             if (i == 0) {
                 rect.rotationQuaternion = startRotation;
