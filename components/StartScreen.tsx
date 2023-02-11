@@ -64,7 +64,7 @@ function MenuButtons() {
     }
 
     async function handleExitRoom() {
-        if(colyClient?.room) {
+        if (colyClient?.room) {
             await colyClient.room.leave()
         }
     }
@@ -83,7 +83,7 @@ function MenuButtons() {
                             </label>
                             {
                                 !colyClient?.room ?
-                                    <label htmlFor="joingame-modal" className="btn btn-wide">Join Game</label> : 
+                                    <label htmlFor="joingame-modal" className="btn btn-wide">Join Game</label> :
                                     <label onClick={() => handleExitRoom()} htmlFor="joingame-modal" className="btn btn-error btn-wide">Exit Room</label>
                             }
                             <div className="inline-flex justify-between">
@@ -107,15 +107,25 @@ function MenuButtons() {
 
 function StartScreen() {
     const colyClient = useContext(ColyseusContext)
-    const { data: session } = useSession();
+    const { data: session } = useSession()
+    const [countdown, setCountdown] = useState(10)
+    
     useEffect(() => {
         if (!colyClient?.client && window != undefined) {
             colyClient?.setClient((new Colyseus.Client('ws://localhost:2567')));
         }
-        if(!colyClient?.userName) {
+        if (!colyClient?.userName) {
             colyClient?.setUserName(session?.user?.userName || generateUsername())
         }
     }, [colyClient, session])
+
+    // useEffect(() => {
+    //     const countdownTimer = setInterval(() => {
+    //         setCountdown(prev => prev > 0 ? (prev - 1): prev)
+    //     }, 1000)
+    //     return () => clearInterval(countdownTimer);
+    // }, [])
+    
 
     return (
         <div className="hero min-h-screen xl:max-w-5xl xl:mx-auto" style={{ backgroundImage: `url("/title-image.png")` }}>
@@ -126,6 +136,9 @@ function StartScreen() {
                 </div>
                 <div className="max-w-full row-start-2 row-end-4 items-start justify-center flex">
                     <MenuButtons />
+                    {/* <span className="countdown font-mono text-6xl">
+                        <span style={{ "--value": countdown } as React.CSSProperties}></span>
+                    </span> */}
                 </div>
             </div>
         </div>
