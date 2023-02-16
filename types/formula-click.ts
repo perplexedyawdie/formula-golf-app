@@ -1,4 +1,15 @@
-import { ArcRotateCamera, GroundMesh, HemisphericLight, LinesMesh, Mesh, Vector3 } from "@babylonjs/core"
+import { ArcRotateCamera, GroundMesh, HemisphericLight, LinesMesh, Mesh, Nullable, Quaternion, Vector3 } from "@babylonjs/core"
+
+export interface PlayerState {
+    i: number
+    movementPoints: Vector3[]
+    normals: Vector3[]
+    theta: number
+    startRotation: Nullable<Quaternion>
+    origin: Vector3
+    end: Vector3,
+    currentLoc: Vector3
+}
 
 export interface Circuit {
     innerTrack: LinesMesh
@@ -9,8 +20,8 @@ export interface Circuit {
 export interface FormulaClickScene {
     camera: ArcRotateCamera
     light: HemisphericLight
-    p1: Mesh
-    p2: Mesh
+    localPlayerMesh: Mesh
+    remotePlayerMesh: Mesh
     ground: GroundMesh
 }
 
@@ -20,12 +31,13 @@ export enum CIRCUIT_CONST {
     OUTER_RADIUS = 55,
     PATH_RADIUS = 50,
     P1_INITIAL_Z_POS = 53,
-    P2_INITIAL_Z_POS = 47
+    P2_INITIAL_Z_POS = 47,
+    MOVEMENT_POINTS = 10
 }
 
 export enum FormulaPlayer {
-    P1 = "PLAYER_ONE",
-    P2 = "PLAYER_TWO"
+    local = "LOCAL_PLAYER",
+    remote = "REMOTE_PLAYER"
 }
 
 export enum SCENE_CONST {

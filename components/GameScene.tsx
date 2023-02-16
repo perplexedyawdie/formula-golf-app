@@ -2,31 +2,28 @@ import React from 'react'
 import { FreeCamera, Vector3, HemisphericLight, MeshBuilder, Scene, Mesh, ArcRotateCamera, Color3, StandardMaterial, AxesViewer, Axis, Path3D, Space, Nullable, Quaternion, PointerEventTypes, Tools, Vector4, Ray, RayHelper, LinesMesh, BoundingBoxGizmo, BoundingInfo, CannonJSPlugin } from "@babylonjs/core";
 import SceneComponent from './SceneComponent';
 import generateObjs from '@/utils/generate-scene-objects';
-import { CIRCUIT_CONST, FormulaPlayer, SCENE_CONST } from '@/types/formula-click';
+import { CIRCUIT_CONST, FormulaPlayer, PlayerState, SCENE_CONST } from '@/types/formula-click';
 import trackSelector from '@/utils/generate-circuit';
+import gameInit from '@/utils/init-game';
+import { generateTravelPath, movePlayer } from '@/utils/player-mechanics';
 // import * as CANNON from 'cannon';
 // window.CANNON = CANNON;
 function GameScene() {
-    
-    let playerOne: Mesh;
-    let playerTwo: Mesh;
-    let i = 0;
-    let movementPoints: Vector3[] = []
-    let normals: Vector3[];
-    let theta: number;
-    let startRotation: Nullable<Quaternion>;
-    let axes: AxesViewer;
-    let origin: Vector3;
-    let end: Vector3;
-    const count = 10;
+
+    let localPlayer: Mesh;
+    let remotePlayer: Mesh;
+    let localPlayerData: PlayerState;
+    let remotePlayerData: PlayerState;
     const onSceneReady = (scene: Scene) => {
         // let physicsPlugin = new CannonJSPlugin();
         // let gravityVector = new Vector3(0,-9.81, 0);
         // scene.enablePhysics(gravityVector, physicsPlugin);
         // This creates and positions a free camera (non-mesh)
-        const { camera, light, p1, p2, ground } = generateObjs(scene, FormulaPlayer.P1);
-        playerOne = p1;
-        playerTwo = p2;
+        const { camera, light, localPlayerMesh, remotePlayerMesh, ground } = generateObjs(scene, FormulaPlayer.local);
+        localPlayerData = gameInit.initPlayer(localPlayerMesh);
+        remotePlayerData = gameInit.initPlayer(remotePlayerMesh); // fetch from socket
+        localPlayer = localPlayerMesh;
+        remotePlayer = remotePlayerMesh; // fetch from socket
         const { sponza } = trackSelector;
         const { innerTrack, outerTrack, trackPathPoints } = sponza(scene);
         scene.collisionsEnabled = true;
@@ -35,57 +32,52 @@ function GameScene() {
         // This attaches the camera to the canvas. Handle here
         camera.attachControl(canvas, false);
 
-        axes = new AxesViewer(scene)
-        axes.scaleLines = 10
+        // axes = new AxesViewer(scene)
+        // axes.scaleLines = 10
 
 
         /*----------------Position and Rotate Car at Start---------------------------*/
         let path3d = new Path3D(trackPathPoints);
-        normals = path3d.getNormals();
-        theta = Math.acos(Vector3.Dot(Axis.Z, normals[0]));
-        playerOne.rotate(Axis.Y, theta, Space.WORLD);
-        playerTwo.rotate(Axis.Y, theta, Space.WORLD);
-        startRotation = playerOne.rotationQuaternion;
+        localPlayerData.normals = path3d.getNormals();
+        localPlayerData.theta = Math.acos(Vector3.Dot(Axis.Z, localPlayerData.normals[0]));
+        localPlayer.rotate(Axis.Y, localPlayerData.theta, Space.WORLD);
+        localPlayerData.startRotation = localPlayer.rotationQuaternion;
         /*----------------End Position and Rotate Car at Start---------------------*/
 
         /*------------------------Handle pointer events---------------------------*/
-           
+
         let cutLine: LinesMesh;
         scene.onPointerDown = function (evt, pickInfo, type) {
-           
-            origin = playerOne.position;
+
+            localPlayerData.origin = localPlayer.position;
             let forward = new Vector3(pickInfo.pickedPoint?.x, SCENE_CONST.Y_POS, pickInfo.pickedPoint?.z)
             if (forward) {
-            let direction = Vector3.Normalize(forward.subtract(origin))
-            
-            let length = Vector3.Distance(origin, forward)
-            end = origin.add(direction.scale(length))
-            
-            // let ray = new Ray(origin, direction, length)
-            // let rayHelper = new RayHelper(ray)
-            cutLine = MeshBuilder.CreateLines(
-                "cutLine",
-                {
-                  points: [origin, origin.add(direction.scale(length))],
-                },
-                scene
-              );
-            cutLine.color = Color3.Red()
-            // rayHelper.show(scene)
-            // console.log(forward, origin, length)
-            // console.log("hit detected outer curve: ", cutLine.intersectsMesh(innerTrack))
-            // console.log("hit detected inner curve: ", cutLine.intersectsMesh(outerTrack))
+                let direction = Vector3.Normalize(forward.subtract(localPlayerData.origin))
+
+                let length = Vector3.Distance(localPlayerData.origin, forward)
+                localPlayerData.end = localPlayerData.origin.add(direction.scale(length))
+
+                // let ray = new Ray(origin, direction, length)
+                // let rayHelper = new RayHelper(ray)
+                cutLine = MeshBuilder.CreateLines(
+                    "cutLine",
+                    {
+                        points: [localPlayerData.origin, localPlayerData.end],
+                    },
+                    scene
+                );
+                cutLine.color = Color3.Red()
+                // rayHelper.show(scene)
+                // console.log(forward, origin, length)
+                // console.log("hit detected outer curve: ", cutLine.intersectsMesh(innerTrack))
+                // console.log("hit detected inner curve: ", cutLine.intersectsMesh(outerTrack))
             }
-          
+
         }
 
         scene.onPointerUp = function (evt, pickInfo, type) {
             cutLine?.dispose()
-            for (let x = 0; x <= count; x++) {
-                const factor = x / count;
-                const point1 = Vector3.Lerp(origin, end, factor);
-                movementPoints.push(point1);
-              }
+            localPlayerData.movementPoints.push(...generateTravelPath(localPlayerData));
         }
     }
 
@@ -94,31 +86,13 @@ function GameScene() {
      */
     const onRender = (scene: Scene) => {
 
-        if (
-            playerOne !== undefined &&
-            normals !== undefined &&
-            theta !== undefined &&
-            startRotation !== undefined &&
-            movementPoints != undefined
-        ) {
-            if (i < (movementPoints.length - 1)) {
-                playerOne.position.x = movementPoints[i].x;
-                playerOne.position.z = movementPoints[i].z;
-                theta = Math.acos(Vector3.Dot(normals[i], normals[i + 1]));
-                let dir = Vector3.Cross(normals[i], normals[i + 1]).y;
-                dir = dir / Math.abs(dir);
-                playerOne.rotate(Axis.Y, dir * theta, Space.WORLD);
-                // if (playerOne.intersectsMesh(innerTrack, true)) {
-                //     console.log('intersect!')
-                // }
-                i = (i + 1) % (CIRCUIT_CONST.NUM_POINTS - 1);
-            }
-
-            //continuous looping  
-
-            if (i == 0) {
-                playerOne.rotationQuaternion = startRotation;
-            }
+        if (localPlayer !== undefined && localPlayerData != undefined && remotePlayer !== undefined && remotePlayerData != undefined) {
+            const { updatedPlayer: updatedLocalPlayer, updatedPlayerData: updatedLocalPlayerData } = movePlayer(localPlayer, localPlayerData);
+            const { updatedPlayer: updatedRemotePlayer, updatedPlayerData: updatedRemotePlayerData } = movePlayer(remotePlayer, remotePlayerData);
+            localPlayer = updatedLocalPlayer;
+            localPlayerData = updatedLocalPlayerData;
+            remotePlayer = updatedRemotePlayer;
+            remotePlayerData = updatedRemotePlayerData;
         }
     };
     return (
