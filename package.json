@@ -16,6 +16,7 @@
     "@types/react": "18.0.27",
     "@types/react-dom": "18.0.10",
     "boring-avatars": "^1.7.0",
+    "cannon": "0.6.2",
     "colyseus.js": "^0.14.13",
     "daisyui": "^2.50.0",
     "eslint": "8.33.0",
@@ -31,6 +32,7 @@
     "unique-names-generator": "^4.7.1"
   },
   "devDependencies": {
+    "@types/cannon": "^0.1.8",
     "autoprefixer": "^10.4.13",
     "postcss": "^8.4.21",
     "tailwindcss": "^3.2.4"
