@@ -131,7 +131,7 @@ function StartScreen() {
     
     useEffect(() => {
         if (!colyClient?.client && window != undefined) {
-            colyClient?.setClient((new Colyseus.Client("ws://localhost:2567")));
+            colyClient?.setClient((new Colyseus.Client("ws://fg-game-server.onrender.com")));
         }
         if (!colyClient?.userName) {
             colyClient?.setUserName(session?.user?.userName || generateUsername())
