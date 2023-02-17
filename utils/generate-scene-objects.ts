@@ -31,6 +31,8 @@ export default function generateObjs(scene: Scene, player: FormulaPlayer): Formu
     remotePlayerMesh.rotation.x = SCENE_CONST.PLAYER_X_ROTATION;
     localPlayerMesh.position.z = CIRCUIT_CONST.P1_INITIAL_Z_POS;
     remotePlayerMesh.position.z = CIRCUIT_CONST.P2_INITIAL_Z_POS;
+    localPlayerMesh.position.x = CIRCUIT_CONST.P1_INITIAL_X_POS;
+    remotePlayerMesh.position.x = CIRCUIT_CONST.P2_INITIAL_X_POS;
     const p1Material = new StandardMaterial("material", scene);
     const p2Material = new StandardMaterial("material", scene);
     p1Material.diffuseColor = Color3.Red();

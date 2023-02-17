@@ -10,7 +10,10 @@ function initPlayer(player: Mesh): PlayerState {
         startRotation: null,
         origin: new Vector3(0,0,0),
         end: new Vector3(0,0,0),
-        currentLoc: player.position
+        currentLoc: player.position,
+        clicks: 0,
+        distanceTravelled: 0,
+        isWinner: false
     }
 }
 

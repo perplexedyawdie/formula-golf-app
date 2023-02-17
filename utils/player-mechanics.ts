@@ -1,7 +1,7 @@
 import { CIRCUIT_CONST, FormulaPlayer, PlayerState } from "@/types/formula-click";
-import { Mesh, Vector3, Axis, Space } from "@babylonjs/core";
+import { Mesh, Vector3, Axis, Space, LinesMesh } from "@babylonjs/core";
 
-export function movePlayer(player: Mesh, playerData: PlayerState): { updatedPlayer: Mesh, updatedPlayerData: PlayerState } {
+export function movePlayer(player: Mesh, playerData: PlayerState, otherPlayer: Mesh): { updatedPlayer: Mesh, updatedPlayerData: PlayerState } {
     if (playerData.i < (playerData.movementPoints.length - 1)) {
         player.position.x = playerData.movementPoints[playerData.i].x;
         player.position.z = playerData.movementPoints[playerData.i].z;
@@ -14,6 +14,10 @@ export function movePlayer(player: Mesh, playerData: PlayerState): { updatedPlay
         // }
         playerData.i = (playerData.i + 1) % (CIRCUIT_CONST.NUM_POINTS - 1);
     }
+    // if (checkPlayerCollision(player, otherPlayer)) {
+    //     console.log('collided')
+    //     playerData.movementPoints = playerData.movementPoints.slice(0, playerData.i - 1).reverse()
+    // }
 
     //continuous looping  
 
@@ -35,4 +39,57 @@ export function generateTravelPath(playerData: PlayerState): Vector3[] {
         movementPoints.push(point1);
     }
     return movementPoints;
+}
+
+function checkPlayerCollision(player: Mesh, otherPlayer: Mesh): boolean {
+   return player.intersectsMesh(otherPlayer, true) 
+}
+
+export function checkWinner(finishLine: LinesMesh, player: Mesh, playerLocal: boolean): { winner: boolean, isLocal: boolean } {
+    let winner: boolean = false;
+
+    // finishLinePoints.forEach(point => {
+        if (player.intersectsMesh(finishLine)) {
+            console.log('winner')
+            winner = true;
+        } else {
+            console.log('no winner')
+            winner = false;
+        }
+    // });
+    return {
+        winner: winner,
+        isLocal: playerLocal
+    };
+}
+
+export function checkBoundaryCross(innerTrackPoints: Vector3[], outerTrackPoints: Vector3[], player: Mesh): { innerHit: boolean, outerHit: boolean } {
+    let innerHit = false;
+    let outerHit = false;
+    innerTrackPoints.forEach(point => {
+        if (player.intersectsPoint(point)) {
+            console.log("hit true")
+            innerHit = true;
+        } else {
+            // console.log("hit false")
+
+            innerHit = false;
+        }
+    });
+    outerTrackPoints.forEach(point => {
+        if (player.intersectsPoint(point)) {
+            outerHit = true;
+        } else {
+            outerHit = false;
+        }
+    });
+
+    return {
+        innerHit,
+        outerHit
+    }
+}
+
+export function getTravelDistance(origin: Vector3, destination: Vector3): number {
+    return Vector3.Distance(origin, destination);
 }

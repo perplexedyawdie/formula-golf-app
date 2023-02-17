@@ -9,12 +9,23 @@ export interface PlayerState {
     origin: Vector3
     end: Vector3,
     currentLoc: Vector3
+    clicks: number
+    distanceTravelled: number
+    isWinner: boolean
+}
+
+export interface CircuitPoints {
+    trackPathPoints: Vector3[]
+    finishLinePoints: Vector3[]
+    innerCurvePoints: Vector3[]
+    outerCurvePoints: Vector3[]
 }
 
 export interface Circuit {
     innerTrack: LinesMesh
     outerTrack: LinesMesh
-    trackPathPoints: Vector3[]
+    finishLine: LinesMesh
+    circuitPoints: CircuitPoints
 }
 
 export interface FormulaClickScene {
@@ -31,7 +42,9 @@ export enum CIRCUIT_CONST {
     OUTER_RADIUS = 55,
     PATH_RADIUS = 50,
     P1_INITIAL_Z_POS = 53,
-    P2_INITIAL_Z_POS = 47,
+    P2_INITIAL_Z_POS = 48,
+    P1_INITIAL_X_POS = 4,
+    P2_INITIAL_X_POS = 5,
     MOVEMENT_POINTS = 10
 }
 

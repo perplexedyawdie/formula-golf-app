@@ -9,10 +9,14 @@ import ColyseusContext from "@/context/ColyseusContext";
 import { SocketMessages } from '@/utils/socket-messages.enum'
 import { useSession } from 'next-auth/react'
 import generateUsername from '@/utils/get-a-username'
-
+import { useRouter } from 'next/router'
 // const ModalGroup = dynamic(() => import('./ModalGroup'), {
 //     ssr: false
 //   })
+
+// if (!process.env.COLYSEUS_URL) {
+//     throw new Error('Please add your colyseus wss to .env.local')
+// }
 function LoadingSpiner() {
 
     return (
@@ -32,6 +36,7 @@ function LoadingSpiner() {
 }
 
 function MenuButtons() {
+    const router = useRouter()
     // TODO only authenticated users can see these
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const colyClient = useContext(ColyseusContext)
@@ -53,6 +58,20 @@ function MenuButtons() {
                     room.onMessage(SocketMessages.PLAYER_JOINED, (msg) => {
                         console.log("player joined: ", msg)
                         colyClient.setPlayerJoined(msg);
+                        router.push('/game')
+                    })
+                    room.onMessage(SocketMessages.PLAYER_MOVED, (remotePlayerMsg: { data: string }) => {
+                        console.log('remote player msg')
+                        // console.log(remotePlayerMsg)
+                        colyClient.onRemotePlayerMsg.current.notifyObservers(remotePlayerMsg.data)
+                    })
+                    room.onMessage(SocketMessages.YOUR_TURN, (remotePlayerMsg: boolean) => {
+                        console.log('new turn', remotePlayerMsg)                        
+                        colyClient.onPlayerTurnMsg.current.notifyObservers(remotePlayerMsg)
+                    })
+                    room.onMessage(SocketMessages.GAME_END, (remotePlayerMsg: boolean) => {
+                        console.log('game end', remotePlayerMsg)                        
+                        colyClient.onGameEndMsg.current.notifyObservers(true)
                     })
                     room.onLeave((code) => {
                         console.log("You've been disconnected.");
@@ -112,7 +131,7 @@ function StartScreen() {
     
     useEffect(() => {
         if (!colyClient?.client && window != undefined) {
-            colyClient?.setClient((new Colyseus.Client('ws://localhost:2567')));
+            colyClient?.setClient((new Colyseus.Client("ws://localhost:2567")));
         }
         if (!colyClient?.userName) {
             colyClient?.setUserName(session?.user?.userName || generateUsername())
@@ -132,7 +151,7 @@ function StartScreen() {
             <div className="hero-overlay bg-opacity-60"></div>
             <div className="hero-content h-full self-start text-neutral-content grid grid-rows-3 auto-cols-auto">
                 <div className="max-w-full row-start-1 row-end-2">
-                    <h1 className="lg:text-8xl md:text-6xl sm:text-4xl text-6xl text-center font-bugfast">Formula Golf</h1>
+                    <h1 className="lg:text-8xl md:text-6xl sm:text-4xl text-6xl text-center font-bugfast">Click Racer</h1>
                 </div>
                 <div className="max-w-full row-start-2 row-end-4 items-start justify-center flex">
                     <MenuButtons />

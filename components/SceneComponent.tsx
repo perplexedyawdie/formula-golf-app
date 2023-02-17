@@ -55,5 +55,5 @@ export default function SceneComponent({ antialias, engineOptions, adaptToDevice
     };
   }, [antialias, engineOptions, adaptToDeviceRatio, sceneOptions, onRender, onSceneReady]);
 
-  return <canvas className="w-full" ref={reactCanvas} {...rest} />;
+  return <canvas className="w-full h-full" ref={reactCanvas} {...rest} />;
 };
